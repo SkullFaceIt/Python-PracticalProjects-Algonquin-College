@@ -1,11 +1,11 @@
 import csv
 from PotatoModel import PotatoDTO
 import os
-import MongoDBConnection
+from MongoDBConnection import connect
 
 
 # Connecting to the database
-with MongoDBConnection() as client:
+with connect() as client:
     db = client.Practical_Project_Part_3
     collection = db.Potato_Info
 

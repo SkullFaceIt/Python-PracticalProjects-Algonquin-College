@@ -1,11 +1,12 @@
-import pymongo
+from dotenv import load_dotenv, find_dotenv
+import os
 from pymongo import MongoClient
+load_dotenv(find_dotenv())
 
-class MongoDBConnection:
-    def __init__(self, URI='mongodb+srv://rams0130:CfWJPf8FtDoyKdKh@mallshop.8p5p5d8.mongodb.net/?retryWrites=true&w=majority'):
-        self.URI = URI
-        self.client = None
+password = os.environ.get("MONGODB_PWD")
 
-    def __enter__(self):
-        self.client = MongoClient(self.URI)
-        return self.client
+connection_string = f"mongodb+srv://SebastienRamsay:{password}@mallshopdb.jn1kwwg.mongodb.net/?retryWrites=true&w=majority"
+
+def connect():
+    client = MongoClient(connection_string)
+    return client
