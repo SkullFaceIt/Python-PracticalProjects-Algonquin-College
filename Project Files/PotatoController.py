@@ -99,7 +99,7 @@ def loadData():
             # Reading the CSV file from the project directory.
             # irst arg is file name, second arg indicates to perform a read operation.
             # "as" indicates the name to give this file you are opening
-        with open ('32100358.csv', 'r') as csv_file:
+        with open ('Project Files/32100358.csv', 'r') as csv_file:
 
             # Make a new variable called csv_reader that 
             # uses the csv import to use the reader function
