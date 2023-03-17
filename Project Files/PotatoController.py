@@ -1,7 +1,13 @@
 import csv
 from PotatoModel import PotatoDTO
 import os
+import MongoDBConnection
 
+
+# Connecting to the database
+with MongoDBConnection() as client:
+    db = client.Practical_Project_Part_3
+    collection = db.Potato_Info
 
 
 # Making a new array to store DTO's
@@ -21,7 +27,7 @@ def deleteSelected(selectedPotatos):
     for potato in selectedPotatos:
         potatos.remove(potato)
         
-#updates the selected potato by
+#updates the selected potato
 def updatePotatos(updatedPotatos):
     """replace in memory potatos with updatedPotatos
 
