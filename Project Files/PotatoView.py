@@ -112,7 +112,7 @@ class View:
         
         selectedPotatos = []
         # populate the dbPotatos list from the database
-        dbPotatos = db.find({})
+        dbPotatos = list(db.find({}))
         selection = 0
             
         View.printModel(dbPotatos)
@@ -121,10 +121,7 @@ class View:
             
         # Endless loop
         while selection != -1:
-                
-            # Repopulate dbPotatos
-            dbPotatos = db.find({})
-                
+            
             # Take user input
             selection = input()
                 

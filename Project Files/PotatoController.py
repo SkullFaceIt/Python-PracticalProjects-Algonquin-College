@@ -21,6 +21,17 @@ def deleteSelected(selectedDBPotatos):
     """
     for potato in selectedDBPotatos:
         db.delete_one(potato)
+    
+    dbPotatos = list(db.find({}))
+    numberOfPotatos = 0
+    
+    for potato in dbPotatos:
+        db.delete_one(potato)
+    
+    for potato in dbPotatos:
+        potato["_id"] = numberOfPotatos
+        numberOfPotatos += 1
+        db.insert_one(potato)
         
 #updates the selected potatos
 def updatePotatos(updatedDBPotatos):
@@ -52,7 +63,7 @@ def writePotatosToFile(fileName):
         file.write(','.join(columnNames) + '\n')
         
 
-        dbPotatos = db.find({})
+        dbPotatos = list(db.find({}))
         
         # write the data, one row per potato in the list
         for potato in dbPotatos:
@@ -90,7 +101,7 @@ def getPotatos():
     Returns:
         Array<dbPotato>: current potatos in database
     """
-    dbPotatos = db.find({})
+    dbPotatos = list(db.find({}))
     return dbPotatos
     
 # replace in memory data with new data read from the csv file 
