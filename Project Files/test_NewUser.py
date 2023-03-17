@@ -1,11 +1,14 @@
 import pytest
 import PotatoController
 from PotatoModel import PotatoDTO
-from MongoDBConnection import db
+from MongoDBConnection import MongoDBConnection
 
-nextID = db.estimated_document_count()
+dbConnection = MongoDBConnection.get_instance()
 
-columnNames = [nextID, "REF_DATE","GEO","DGUID","area, production and farm value of potatoes","UOM","UOM_ID","SCALAR_FACTOR","SCALAR_ID","VECTOR","COORDINATE","VALUE","STATUS","SYMBOL","TERMINATED","DECIMALS"]
+nextID = dbConnection.db.estimated_document_count()
+
+columnNames = [nextID, "REF_DATE","GEO","DGUID","area, production and farm value of potatoes","UOM","UOM_ID","SCALAR_FACTOR",\
+    "SCALAR_ID","VECTOR","COORDINATE","VALUE","STATUS","SYMBOL","TERMINATED","DECIMALS"]
 
 def test_newUserAdded():
     """Test adding a user to the database. This test makes a new potato and checks if the potato has the requested atributes.
@@ -19,7 +22,7 @@ def test_newUserAdded():
                         "SYMBOL": "SYMBOL","TERMINATED": "TERMINATED","DECIMALS": "DECIMALS"}
     
     PotatoController.newPotato(testDBPotato)
-    potato = db.find_one({"_id": nextID})
+    potato = dbConnection.db.find_one({"_id": nextID})
     
     assert int(potato["_id"]) == int(columnNames[0]) \
        and potato["REF_DATE"] == columnNames[1] \
@@ -39,5 +42,5 @@ def test_newUserAdded():
        and potato["DECIMALS"] == columnNames[15], \
        f"Expected: {columnNames}, but got: {potato.values()}"
        
-    db.delete_one(testDBPotato)
+    dbConnection.db.delete_one(testDBPotato)
 

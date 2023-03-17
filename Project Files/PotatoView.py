@@ -1,7 +1,11 @@
 
 import PotatoController
 from PotatoModel import PotatoDTO
-from MongoDBConnection import db
+from MongoDBConnection import MongoDBConnection
+
+# get instance of db connection
+dbConnection = MongoDBConnection.get_instance()
+
 
  
 
@@ -41,8 +45,9 @@ class View:
                         "SYMBOL": SYMBOL,"TERMINATED": TERMINATED,"DECIMALS": DECIMALS}
             
             updatedPotatos.append(dbPotato)
-            for potato in updatedPotatos:
-                print(potato)
+        
+        View.printModel(updatedPotatos)
+        
         return updatedPotatos
     
     def print(string):
@@ -56,12 +61,12 @@ class View:
         """
         print('\nSelect an option below by entering it\'s number:')
         print('0: Exit')
-        print('1: Reload the data from the dataset, replacing the in-memory data.')
-        print('2: Persist the data from memory to the disk as a comma-separated file, writing to a new file.')
-        print('3: Create a new record and store it in the simple data structure in memory.')
-        print('4: Select and display either one record, or display multiple records from the in-memory data.')
-        print('5: Select and edit a record held in the simple data structure in memory.')
-        print('6: Select and delete a record from the simple data structure in memory.')
+        print('1: Reload the data from the dataset, replacing the data in the database.')
+        print('2: Persist the data from the database to the disk as a comma-separated file, writing to a new file.')
+        print('3: Create a new record and store it in the simple data structure in the database.')
+        print('4: Select and display either one record, or display multiple records from the database.')
+        print('5: Select and edit a record held in the simple data structure in the database.')
+        print('6: Select and delete a record from the simple data structure in the database.')
         print('\nPROGRAM BY SEBASTIEN RAMSAY')
         
         selection = input()
@@ -112,7 +117,7 @@ class View:
         
         selectedPotatos = []
         # populate the dbPotatos list from the database
-        dbPotatos = list(db.find({}))
+        dbPotatos = PotatoController.getPotatos()
         selection = 0
             
         View.printModel(dbPotatos)
@@ -137,11 +142,20 @@ class View:
                 for dbPotato in dbPotatos:
                     if int(dbPotato["_id"]) == int(selection[0]):
                         selectedPotatos.append(dbPotato)
-            # The user is selecting a range of ids meaning selection will have a min value in selection[0] and a max value in selection[1]
+            # The user is selecting a range of ids meaning selection will have a min value and a max value in unknown order
             else:
-                for dbPotato in dbPotatos:
-                    if int(dbPotato["_id"]) >= int(selection[0])and int(dbPotato["_id"]) <= int(selection[1]):
-                        selectedPotatos.append(dbPotato)
+                if int(selection[0]) < int(selection[1]):
+                    for dbPotato in dbPotatos:
+                        if int(dbPotato["_id"]) >= int(selection[0])and int(dbPotato["_id"]) <= int(selection[1]):
+                            selectedPotatos.append(dbPotato)
+                if int(selection[1]) < int(selection[0]):
+                    for dbPotato in reversed(dbPotatos):
+                        if int(dbPotato["_id"]) >= int(selection[1])and int(dbPotato["_id"]) <= int(selection[0]):
+                            selectedPotatos.append(dbPotato)
+                if int(selection[1]) == int(selection[0]):
+                    for dbPotato in dbPotatos:
+                        if int(dbPotato["_id"]) == int(selection[1])and int(dbPotato["_id"]) == int(selection[0]):
+                            selectedPotatos.append(dbPotato)
         
     def newPotato():
         """take user input to make a new dbPotato

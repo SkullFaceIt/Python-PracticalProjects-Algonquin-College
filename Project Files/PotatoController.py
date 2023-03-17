@@ -1,11 +1,12 @@
 import csv
 from PotatoModel import PotatoDTO
 import os
-from MongoDBConnection import db
+from MongoDBConnection import MongoDBConnection
 
-# Making a new array to store DTO's
-potatos = []
+# Start the database instance
+dbConnection = MongoDBConnection.get_instance()
 
+# Making a new array to store dbPotato's
 dbPotatos = []
                 
 # Hardcoding the column names into the program as an array
@@ -20,18 +21,18 @@ def deleteSelected(selectedDBPotatos):
         selectedDBPotatos (Array<dbPotato>): potatos to be deleted
     """
     for potato in selectedDBPotatos:
-        db.delete_one(potato)
+        dbConnection.db.delete_one(potato)
     
-    dbPotatos = list(db.find({}))
+    dbPotatos = list(dbConnection.db.find({}))
     numberOfPotatos = 0
     
     for potato in dbPotatos:
-        db.delete_one(potato)
+        dbConnection.db.delete_one(potato)
     
     for potato in dbPotatos:
         potato["_id"] = numberOfPotatos
         numberOfPotatos += 1
-        db.insert_one(potato)
+        dbConnection.db.insert_one(potato)
         
 #updates the selected potatos
 def updatePotatos(updatedDBPotatos):
@@ -45,7 +46,7 @@ def updatePotatos(updatedDBPotatos):
         #find the id to update by the updated potatos id and update the potato with the new values
         filter = {"_id": potato["_id"]}
         newPotato = {"$set": potato}
-        db.update_one(filter, newPotato)
+        dbConnection.db.update_one(filter, newPotato)
     
 # Write a new file
 def writePotatosToFile(fileName):
@@ -63,7 +64,7 @@ def writePotatosToFile(fileName):
         file.write(','.join(columnNames) + '\n')
         
 
-        dbPotatos = list(db.find({}))
+        dbPotatos = list(dbConnection.db.find({}))
         
         # write the data, one row per potato in the list
         for potato in dbPotatos:
@@ -88,9 +89,9 @@ def newPotato(dbPotato):
     """
 
     # Set the id for the new potato
-    newID = db.estimated_document_count()
+    newID = dbConnection.db.estimated_document_count()
     dbPotato["_id"] = newID
-    db.insert_one(dbPotato)
+    dbConnection.db.insert_one(dbPotato)
     
     return ("Your record has been stored in the database")
         
@@ -101,7 +102,7 @@ def getPotatos():
     Returns:
         Array<dbPotato>: current potatos in database
     """
-    dbPotatos = list(db.find({}))
+    dbPotatos = list(dbConnection.db.find({}))
     return dbPotatos
     
 # replace in memory data with new data read from the csv file 
@@ -111,10 +112,9 @@ def loadData():
     Returns:
         String: data loaded or data failed to load
     """
-    #clear in memory data
-    potatos.clear()
     
-    db.delete_many({})
+    dbConnection.db.delete_many({})
+    dbPotatos.clear()
 
     # Try statement for exeption handling
     try: 
@@ -142,7 +142,7 @@ def loadData():
                         dbPotatos.append(dbPotato)
                         numberOfPotatos += 1
                              
-                db.insert_many(dbPotatos) 
+                dbConnection.db.insert_many(dbPotatos) 
                 
             except Exception as e:
                 return("An exception occurred: ", e)
