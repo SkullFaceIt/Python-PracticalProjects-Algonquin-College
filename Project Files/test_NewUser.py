@@ -8,7 +8,8 @@ nextID = db.estimated_document_count()
 columnNames = [nextID, "REF_DATE","GEO","DGUID","area, production and farm value of potatoes","UOM","UOM_ID","SCALAR_FACTOR","SCALAR_ID","VECTOR","COORDINATE","VALUE","STATUS","SYMBOL","TERMINATED","DECIMALS"]
 
 def test_newUserAdded():
-    """Test adding a user to memory. This test makes a new potato and checks if the potato has the requested atributes.
+    """Test adding a user to the database. This test makes a new potato and checks if the potato has the requested atributes.
+        The test data is removed from the database after the test is complete.
     """
     
     testDBPotato = {"_id": nextID, "REF_DATE": "REF_DATE","GEO": "GEO","DGUID": "DGUID",\

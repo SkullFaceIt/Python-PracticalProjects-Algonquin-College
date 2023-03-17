@@ -8,6 +8,14 @@ from MongoDBConnection import db
 class View:
     
     def updateSelected(selectedPotatos):
+        """_summary_
+
+        Args:
+            selectedPotatos (dbPotatos): holds an array of dbPotatos selected by the user.
+
+        Returns:
+            dbPotato: the selected potatos after being updated by the user.
+        """
         updatedPotatos = []
         for potato in selectedPotatos:
             REF_DATE = input("Old REF_DATE = '" + potato["REF_DATE"] + "' Enter REF_DATE: ")
@@ -41,6 +49,11 @@ class View:
         print(string)
     
     def printMenu():
+        """prints the main menu and takes user input
+
+        Returns:
+            selection(int): user input
+        """
         print('\nSelect an option below by entering it\'s number:')
         print('0: Exit')
         print('1: Reload the data from the dataset, replacing the in-memory data.')
@@ -58,7 +71,11 @@ class View:
     
     
     def printModel(dbPotatos):
+        """prints the array of potatos
 
+        Args:
+            dbPotatos (dbPotato): an array of dbPotatos to be printed
+        """
         # Hardcoding the column names into the program as an array
         columnNames = ["ID", "REF_DATE","GEO","DGUID","Area, production and farm value of potatoes","UOM","UOM_ID","SCALAR_FACTOR","SCALAR_ID","VECTOR","COORDINATE","VALUE","STATUS","SYMBOL","TERMINATED","DECIMALS"]
 
@@ -86,43 +103,55 @@ class View:
     
      
     def selectPotatos():
-            selectedPotatos = []
-            # populate the dbPotatos list from the database
+        """prints the potatos in the database and gives two options for selecting potatos.
+        select one or many potatos by entering their ID and pressing enter, use space seperated numbers to select a range of potatos.
+
+        Returns:
+            selectedPotatos(dbPotatos): an array of dbPotatos selected by the user.
+        """
+        
+        selectedPotatos = []
+        # populate the dbPotatos list from the database
+        dbPotatos = db.find({})
+        selection = 0
+            
+        View.printModel(dbPotatos)
+        print("please select one or many potatos by entering their ID and pressing enter: \nuse space seperated numbers to select a range of potatos\nwhen you are done enter a letter")
+            
+            
+        # Endless loop
+        while selection != -1:
+                
+            # Repopulate dbPotatos
             dbPotatos = db.find({})
-            selection = 0
-            
-            View.printModel(dbPotatos)
-            print("please select one or many potatos by entering their ID and pressing enter: \nuse space seperated numbers to select a range of \nwhen you are done enter a letter")
-            
-            
-            # Endless loop
-            while selection != -1:
                 
-                # Repopulate dbPotatos
-                dbPotatos = db.find({})
+            # Take user input
+            selection = input()
                 
-                # Take user input
-                selection = input()
+            # return if selection is a letter
+            if selection.isalpha():
+                return selectedPotatos
                 
-                # return if selection is a letter
-                if selection.isalpha():
-                    return selectedPotatos
+            # Split the input into an array of ids
+            selection = [int(num) for num in selection.split()]
                 
-                # Split the input into an array of ids
-                selection = [int(num) for num in selection.split()]
-                
-                # if the user is not selecting a range of ids
-                if len(selection) <=1: 
-                    for dbPotato in dbPotatos:
-                        if int(dbPotato["_id"]) == int(selection[0]):
-                            selectedPotatos.append(dbPotato)
-                # The user is selecting a range of ids meaning selection will have a min value in selection[0] and a max value in selection[1]
-                else:
-                    for dbPotato in dbPotatos:
-                            if int(dbPotato["_id"]) >= int(selection[0])and int(dbPotato["_id"]) <= int(selection[1]):
-                                selectedPotatos.append(dbPotato)
+            # if the user is not selecting a range of ids
+            if len(selection) <=1: 
+                for dbPotato in dbPotatos:
+                    if int(dbPotato["_id"]) == int(selection[0]):
+                        selectedPotatos.append(dbPotato)
+            # The user is selecting a range of ids meaning selection will have a min value in selection[0] and a max value in selection[1]
+            else:
+                for dbPotato in dbPotatos:
+                    if int(dbPotato["_id"]) >= int(selection[0])and int(dbPotato["_id"]) <= int(selection[1]):
+                        selectedPotatos.append(dbPotato)
         
     def newPotato():
+        """take user input to make a new dbPotato
+
+        Returns:
+            String: the return method calls newPotato in the PotatoController which return a string "Your record has been stored in the database"
+        """
         REF_DATE = input("Enter REF_DATE: ")
         GEO = input("Enter GEO: ")
         DGUID = input("Enter DGUID: ")

@@ -1,7 +1,7 @@
 # DTO used to store a single row in the csv file
 class PotatoDTO:
     '''
-    DTO for potato data from the csv
+    DTO for potato data from the csv (old dto for saving to memory)
     '''
     def __init__(self, ID, REF_DATE, GEO, DGUID, description, UOM, UOM_ID, SCALAR_FACTOR, SCALAR_ID, VECTOR, COORDINATE, VALUE, STATUS, SYMBOL, TERMINATED, DECIMALS):
         self.ID = ID
