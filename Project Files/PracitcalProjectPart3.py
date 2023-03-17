@@ -49,7 +49,9 @@ while case != 0:
     try:
         case = int(View.printMenu())
         switch.get(case, case_default)()
-    except:
+    except ValueError:
         case_default()
+    except Exception as e:
+        print(e)
         
         

@@ -1,11 +1,7 @@
 import csv
 from PotatoModel import PotatoDTO
 import os
-from MongoDBConnection import connect
-
-#Connect to DB
-with connect() as client:
-    db = client.Practical_Project_Part_3.Potato_Info
+from MongoDBConnection import db
 
 # Making a new array to store DTO's
 potatos = []
@@ -17,27 +13,28 @@ columnNames = ["ID", "REF_DATE","GEO","DGUID","Area, production and farm value o
 
 
 # deletes the selectd Potato from the potatos list
-def deleteSelected(selectedPotatos):
-    """delete selectedPotatos from potatos array
+def deleteSelected(selectedDBPotatos):
+    """delete selectedPotatos from the database
 
     Args:
-        selectedPotatos (Array<potatoDTO>): potatos to be deleted
+        selectedDBPotatos (Array<dbPotato>): potatos to be deleted
     """
-    for potato in selectedPotatos:
-        potatos.remove(potato)
+    for potato in selectedDBPotatos:
+        db.delete_one(potato)
         
-#updates the selected potato by
-def updatePotatos(updatedPotatos):
-    """replace in memory potatos with updatedPotatos
+#updates the selected potatos
+def updatePotatos(updatedDBPotatos):
+    """replace database potatos with updatedDBPotatos
 
     Args:
-        updatedPotatos (Array<potatoDTO>): potatos that have been updated in the View Class
+        updatedDBPotatos (Array<dbPotatos>): dbPotatos that have been updated in the View Class
     """
-    for potato in updatedPotatos:
-        #remove the old potato
-        potatos.pop(potato.ID)
-        #add the new one
-        potatos.append(potato)
+
+    for potato in updatedDBPotatos:
+        #find the id to update by the updated potatos id and update the potato with the new values
+        filter = {"_id": potato["_id"]}
+        newPotato = {"$set": potato}
+        db.update_one(filter, newPotato)
     
 # Write a new file
 def writePotatosToFile(fileName):
@@ -54,43 +51,51 @@ def writePotatosToFile(fileName):
         # write the header row with the column names
         file.write(','.join(columnNames) + '\n')
         
+
+        dbPotatos = db.find({})
+        
         # write the data, one row per potato in the list
-        for potato in potatos:
-            row_data = [potato.REF_DATE, potato.GEO, potato.DGUID,\
-                potato.description, potato.UOM, str(potato.UOM_ID),\
-                    str(potato.SCALAR_FACTOR), potato.SCALAR_ID, potato.VECTOR,\
-                        str(potato.COORDINATE), str(potato.VALUE), potato.STATUS,\
-                            potato.SYMBOL, potato.TERMINATED, str(potato.DECIMALS)]
+        for potato in dbPotatos:
+            row_data = [str(potato["_id"]), potato["GEO"], potato["DGUID"],\
+                potato["area, production and farm value of potatoes"], potato["UOM"], str(potato["UOM_ID"]),\
+                    str(potato["SCALAR_FACTOR"]), potato["SCALAR_ID"], potato["VECTOR"],\
+                        str(potato["COORDINATE"]), str(potato["VALUE"]), potato["STATUS"],\
+                            potato["SYMBOL"], potato["TERMINATED"], str(potato["DECIMALS"])]
             #write a row of data comma seperated
             file.write(','.join(row_data) + '\n')
     return ("New File Named " + fileName + "\n" + os.getcwd() + "\\" + fileName)
             
-# Add a potato to the list
-def newPotato(potato):
+# Add a potato to the database
+def newPotato(dbPotato):
     """Add the potato to the potato array
 
     Args:
-        potato (potatoDTO): a single potatoDTO to be added to memory
+        potato (dbPotato): a single database potato to be added to the database
 
     Returns:
-        String: record stored in memory
+        String: record stored in database
     """
-    potatos.append(potato)
+
+    # Set the id for the new potato
+    newID = db.estimated_document_count()
+    dbPotato["_id"] = newID
+    db.insert_one(dbPotato)
     
-    return ("Your record has been stored in memory")
+    return ("Your record has been stored in the database")
         
 # Get the list of potatos
 def getPotatos():
-    """get the current array of potatos
+    """get the current array of potatos from the database
 
     Returns:
-        Array<potatoDTO>: current potatos in memory
+        Array<dbPotato>: current potatos in database
     """
-    return potatos
+    dbPotatos = db.find({})
+    return dbPotatos
     
 # replace in memory data with new data read from the csv file 
 def loadData():
-    """Load data from the csv file using the csv API library
+    """Load data from the csv file using the csv API library, clears the database and adds the new data
 
     Returns:
         String: data loaded or data failed to load
@@ -98,10 +103,7 @@ def loadData():
     #clear in memory data
     potatos.clear()
     
-    #Connect to DB
-    with connect() as client:
-        db = client.Practical_Project_Part_3.Potato_Info
-        db.delete_many({})
+    db.delete_many({})
 
     # Try statement for exeption handling
     try: 
@@ -127,14 +129,13 @@ def loadData():
                         line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], line[13], line[14]
                         dbPotato = {"_id": numberOfPotatos,"REF_DATE": line[0],"GEO": line[1],"DGUID": line[2], "area, production and farm value of potatoes": line[3],"UOM": line[4],"UOM_ID": line[5],"SCALAR_FACTOR": line[6],"SCALAR_ID": line[7],"VECTOR": line[8],"COORDINATE": line[9],"VALUE": line[10],"STATUS": line[11],"SYMBOL": line[12],"TERMINATED": line[13],"DECIMALS": line[14]}
                         dbPotatos.append(dbPotato)
-                        numberOfPotatos += 1 
-                #Connect to DB
-                with connect() as client:
-                    db = client.Practical_Project_Part_3.Potato_Info        
-                    db.insert_many(dbPotatos) 
+                        numberOfPotatos += 1
+                             
+                db.insert_many(dbPotatos) 
+                
             except Exception as e:
                 return("An exception occurred: ", e)
-        return ("Reloaded data into memory")      
+        return ("Reloaded data into database")      
     # Except statment will catch any exceptions that take place
     except FileNotFoundError:
         #PotatoView.print("FILE NOT FOUND!")

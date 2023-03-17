@@ -1,32 +1,41 @@
 
 import PotatoController
 from PotatoModel import PotatoDTO
-
+from MongoDBConnection import db
 
  
 
 class View:
     
     def updateSelected(selectedPotatos):
-        newPotatos = []
+        updatedPotatos = []
         for potato in selectedPotatos:
-            REF_DATE = input("Old REF_DATE = '" + potato.REF_DATE + "' Enter REF_DATE: ")
-            GEO = input("Old GEO = '" + potato.GEO + "' Enter GEO: ")
-            DGUID = input("Old DGUID = '" + potato.DGUID + "' Enter DGUID: ")
-            description = input("Old description = '" + potato.description + "' Enter description: ")
-            UOM = input("Old UOM = '" + potato.UOM + "' Enter UOM: ")
-            UOM_ID = input("Old UOM_ID = '" + potato.UOM_ID + "' Enter UOM_ID: ")
-            SCALAR_FACTOR = input("Old SCALAR_FACTOR = '" + potato.SCALAR_FACTOR + "' Enter SCALAR_FACTOR: ")
-            SCALAR_ID = input("Old SCALAR_ID = '" + potato.SCALAR_ID + "' Enter SCALAR_ID: ")
-            VECTOR = input("Old VECTOR = '" + potato.VECTOR + "' Enter VECTOR: ")
-            COORDINATE = input("Old COORDINATE = '" + potato.COORDINATE + "' Enter COORDINATE: ")
-            VALUE = input("Old VALUE = '" + potato.VALUE + "' Enter VALUE: ")
-            STATUS = input("Old STATUS = '" + potato.STATUS + "' Enter STATUS: ")
-            SYMBOL = input("Old SYMBOL = '" + potato.SYMBOL + "' Enter SYMBOL: ")
-            TERMINATED = input("Old TERMINATED = '" + potato.TERMINATED + "' Enter TERMINATED: ")
-            DECIMALS = input("Old DECIMALS = '" + potato.DECIMALS + "' Enter DECIMALS: ")
-            newPotatos.append(PotatoDTO(potato.ID, REF_DATE, GEO, DGUID, description, UOM, UOM_ID, SCALAR_FACTOR, SCALAR_ID, VECTOR, COORDINATE, VALUE, STATUS, SYMBOL, TERMINATED, DECIMALS))
-        return newPotatos
+            REF_DATE = input("Old REF_DATE = '" + potato["REF_DATE"] + "' Enter REF_DATE: ")
+            GEO = input("Old GEO = '" + potato["GEO"] + "' Enter GEO: ")
+            DGUID = input("Old DGUID = '" + potato["DGUID"] + "' Enter DGUID: ")
+            description = input("Old description = '" + potato["area, production and farm value of potatoes"] + "' Enter description: ")
+            UOM = input("Old UOM = '" + potato["UOM"] + "' Enter UOM: ")
+            UOM_ID = input("Old UOM_ID = '" + potato["UOM_ID"] + "' Enter UOM_ID: ")
+            SCALAR_FACTOR = input("Old SCALAR_FACTOR = '" + potato["SCALAR_FACTOR"] + "' Enter SCALAR_FACTOR: ")
+            SCALAR_ID = input("Old SCALAR_ID = '" + potato["SCALAR_ID"] + "' Enter SCALAR_ID: ")
+            VECTOR = input("Old VECTOR = '" + potato["VECTOR"] + "' Enter VECTOR: ")
+            COORDINATE = input("Old COORDINATE = '" + potato["COORDINATE"] + "' Enter COORDINATE: ")
+            VALUE = input("Old VALUE = '" + potato["VALUE"] + "' Enter VALUE: ")
+            STATUS = input("Old STATUS = '" + potato["STATUS"] + "' Enter STATUS: ")
+            SYMBOL = input("Old SYMBOL = '" + potato["SYMBOL"] + "' Enter SYMBOL: ")
+            TERMINATED = input("Old TERMINATED = '" + potato["TERMINATED"] + "' Enter TERMINATED: ")
+            DECIMALS = input("Old DECIMALS = '" + potato["DECIMALS"] + "' Enter DECIMALS: ")
+            
+            dbPotato = {"_id": potato["_id"],"REF_DATE": REF_DATE,"GEO": GEO,"DGUID": DGUID,\
+            "area, production and farm value of potatoes": description,"UOM": UOM,\
+                "UOM_ID": UOM_ID,"SCALAR_FACTOR": SCALAR_FACTOR,"SCALAR_ID": SCALAR_ID,\
+                    "VECTOR": VECTOR,"COORDINATE": COORDINATE,"VALUE": VALUE,"STATUS": STATUS,\
+                        "SYMBOL": SYMBOL,"TERMINATED": TERMINATED,"DECIMALS": DECIMALS}
+            
+            updatedPotatos.append(dbPotato)
+            for potato in updatedPotatos:
+                print(potato)
+        return updatedPotatos
     
     def print(string):
         print(string)
@@ -48,7 +57,7 @@ class View:
     
     
     
-    def printModel(potatos):
+    def printModel(dbPotatos):
 
         # Hardcoding the column names into the program as an array
         columnNames = ["ID", "REF_DATE","GEO","DGUID","Area, production and farm value of potatoes","UOM","UOM_ID","SCALAR_FACTOR","SCALAR_ID","VECTOR","COORDINATE","VALUE","STATUS","SYMBOL","TERMINATED","DECIMALS"]
@@ -65,42 +74,53 @@ class View:
 
 
         # Itterating through the potatos array(Array of DTOS's) each DTO is accessed with "potato"(DTO)
-        for potato in potatos:    
+        for potato in dbPotatos:    
             #Printing a row of data from the potato DTO and setting end=' ' to prevent the function from printing a new line
-            print(potato.ID, potato.REF_DATE, potato.GEO, potato.DGUID, potato.description, potato.UOM, potato.UOM_ID, potato.SCALAR_FACTOR, potato.SCALAR_ID, potato.VECTOR, potato.COORDINATE, potato.VALUE, potato.STATUS, potato.SYMBOL, potato.TERMINATED, potato.DECIMALS, end=' ')
+            print(str(potato["_id"]), potato["GEO"], potato["DGUID"],\
+                potato["area, production and farm value of potatoes"], potato["UOM"], str(potato["UOM_ID"]),\
+                    str(potato["SCALAR_FACTOR"]), potato["SCALAR_ID"], potato["VECTOR"],\
+                        str(potato["COORDINATE"]), str(potato["VALUE"]), potato["STATUS"],\
+                            potato["SYMBOL"], potato["TERMINATED"], str(potato["DECIMALS"]), end=' ')
             # Printing a new line
             print()
     
      
     def selectPotatos():
             selectedPotatos = []
-            potatos = PotatoController.getPotatos()
+            # populate the dbPotatos list from the database
+            dbPotatos = db.find({})
             selection = 0
             
-            View.printModel(potatos=potatos)
+            View.printModel(dbPotatos)
             print("please select one or many potatos by entering their ID and pressing enter: \nuse space seperated numbers to select a range of \nwhen you are done enter a letter")
             
             
+            # Endless loop
             while selection != -1:
                 
+                # Repopulate dbPotatos
+                dbPotatos = db.find({})
+                
+                # Take user input
                 selection = input()
                 
+                # return if selection is a letter
                 if selection.isalpha():
                     return selectedPotatos
                 
+                # Split the input into an array of ids
                 selection = [int(num) for num in selection.split()]
                 
+                # if the user is not selecting a range of ids
                 if len(selection) <=1: 
-                    for potato in potatos:
-                        if potato.ID == int(selection[0]):
-                            selectedPotatos.append(potato)
+                    for dbPotato in dbPotatos:
+                        if int(dbPotato["_id"]) == int(selection[0]):
+                            selectedPotatos.append(dbPotato)
+                # The user is selecting a range of ids meaning selection will have a min value in selection[0] and a max value in selection[1]
                 else:
-                    for potato in potatos:
-                            if potato.ID >= int(selection[0])and potato.ID <= int(selection[1]):
-                                selectedPotatos.append(potato)            
-                
-                
-            return selectedPotatos
+                    for dbPotato in dbPotatos:
+                            if int(dbPotato["_id"]) >= int(selection[0])and int(dbPotato["_id"]) <= int(selection[1]):
+                                selectedPotatos.append(dbPotato)
         
     def newPotato():
         REF_DATE = input("Enter REF_DATE: ")
@@ -118,9 +138,12 @@ class View:
         SYMBOL = input("Enter SYMBOL: ")
         TERMINATED = input("Enter TERMINATED: ")
         DECIMALS = input("Enter DECIMALS: ")
-        potato = PotatoDTO(PotatoController.getPotatos().__len__(), REF_DATE, GEO, DGUID, description, UOM, UOM_ID, SCALAR_FACTOR, SCALAR_ID, VECTOR, COORDINATE, VALUE, STATUS, SYMBOL, TERMINATED, DECIMALS)
-        
-        return PotatoController.newPotato(potato)
+        dbPotato = {"_id": 0,"REF_DATE": REF_DATE,"GEO": GEO,"DGUID": DGUID,\
+            "area, production and farm value of potatoes": description,"UOM": UOM,\
+                "UOM_ID": UOM_ID,"SCALAR_FACTOR": SCALAR_FACTOR,"SCALAR_ID": SCALAR_ID,\
+                    "VECTOR": VECTOR,"COORDINATE": COORDINATE,"VALUE": VALUE,"STATUS": STATUS,\
+                        "SYMBOL": SYMBOL,"TERMINATED": TERMINATED,"DECIMALS": DECIMALS}
+        return PotatoController.newPotato(dbPotato)
         
         
     
