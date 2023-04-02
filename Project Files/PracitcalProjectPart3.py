@@ -1,6 +1,7 @@
 from PotatoView import View
 import PotatoController
 import sys
+from PieChart import ChartGenerator
 
 
 def exit():
@@ -45,6 +46,14 @@ def case_6():
     PotatoController.deleteSelected(View.selectPotatos())
     View.print('PROGRAM BY SEBASTIEN RAMSAY')
 
+def case_7():
+    """Select Potatos and generate a pie chart on potato["GEO"]
+    """
+    ChartGenerator.generate_pie_chart(View.selectPotatos())
+    View.print('PROGRAM BY SEBASTIEN RAMSAY')
+
+
+    
 def case_default():
     """The users input is invalid
     """
@@ -58,7 +67,8 @@ switch = {
     3: case_3,
     4: case_4,
     5: case_5,
-    6: case_6
+    6: case_6,
+    7: case_7
 }
 
 case = 10
