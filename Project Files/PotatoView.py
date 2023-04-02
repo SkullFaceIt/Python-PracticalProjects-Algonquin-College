@@ -67,6 +67,7 @@ class View:
         print('4: Select and display either one record, or display multiple records from the database.')
         print('5: Select and edit a record held in the simple data structure in the database.')
         print('6: Select and delete a record from the simple data structure in the database.')
+        print('7: Select record(s) from the database to compare in a pie chart.')
         print('\nPROGRAM BY SEBASTIEN RAMSAY')
         
         selection = input()
