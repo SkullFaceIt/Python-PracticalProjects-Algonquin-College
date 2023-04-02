@@ -1,5 +1,6 @@
 from PotatoView import View
 import PotatoController
+import sys
 
 
 def exit():
@@ -65,9 +66,11 @@ while case != 0:
     try:
         case = int(View.printMenu())
         switch.get(case, case_default)()
-    except ValueError:
-        case_default()
+    except KeyboardInterrupt:
+        print("Exiting Program")
+        sys.exit()
     except Exception as e:
         print(e)
+    
         
         
